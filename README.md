@@ -1,4 +1,4 @@
-# ML-Inference-Server with Celery queue, Redis and traefik
+# ML-Inference-Server with Celery queue, Redis and Traefik
 
 It is a project of inference server for Question-Answering task with ONNX Runtime optimized model, FastAPI, Gradio as the frontend part, Celery as the task queue, Redis as the Celery-backend and Traefik as the reverse proxy and load-balancer. All services are packaged in Docker-containers. 
 
@@ -12,6 +12,8 @@ An example of work is located below.
 When you click the `Submit` button on the frontend, a Celery task is first added for back-end processing and task ID is returned. 
 
 After that, when async inference is ready, it returns the answer to the given question and context, as well as the score of that answer. 
+
+Traefik is responsible for routing and load balancing requests for the back-end part.
 
 ## Launch instructions
 
