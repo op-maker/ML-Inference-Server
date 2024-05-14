@@ -13,8 +13,9 @@ import time
 @retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def get_result(task_id: str) -> Dict[Any, Any]:
     start = time.time()
-    response = requests.get(f"http://web/api/task/{task_id}")
-    if response.status_code == STATUS_PENDING: #or response.json()["status"] == "PENDING":
+    response = requests.get(f"http://127.0.0.1:8081/api/task/{task_id}")
+    # response = requests.get(f"http://web/api/task/{task_id}")
+    if response.status_code == STATUS_PENDING:
         raise gr.Error("Task on progress")
 
     return response.json()
@@ -23,7 +24,8 @@ def predict_answer(question: str, context: str):
     
     input = {'question': question, 'context': context}
     response = requests.post(
-        "http://web/api/predict",
+        "http://127.0.0.1:8081/api/predict",
+        # "http://web/api/predict",
         data = json.dumps(input),
         )
     

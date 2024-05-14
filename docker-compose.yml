@@ -7,15 +7,29 @@ services:
     ports:
       - "6379:6379"
 
-
   worker:
     build: worker/
     container_name: worker
     environment:
       - "CELERY_BROKER_URL=redis://redis"
-    command: celery -A predict worker -l INFO
+    command: celery -A predict worker -l INFO --concurrency=2
     depends_on:
       - redis
+    
+  reverse-proxy:
+    # The official v3 Traefik docker image
+    image: traefik:v3.0
+    # Enables the web UI and tells Traefik to listen to docker
+    container_name: reverse-proxy
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
   
   web:
     build: web/
@@ -23,22 +37,27 @@ services:
     environment:
       DEVICE: cpu
     ports:
-      - 8080:80
+      - 8081:80
     command: python app.py
     depends_on:
       - redis
       - worker
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)"
+      - "traefik.http.services.fastapi.loadbalancer.server.port=80"
     
   front:
     build: front/
     container_name: front
     environment:
-      IS_SHAREABLE: False
-    ports:
-      - 7860:7860
+      IS_SHAREABLE: True
+    # ports:
+    #   - 7860:7860
     command: python front_app.py
+    network_mode: host
     depends_on:
       - redis
       - worker
       - web
-      
+    

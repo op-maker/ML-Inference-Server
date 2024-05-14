@@ -13,9 +13,6 @@ from starlette.status import (
 from celery import Celery, states
 
 
-# from model import load_model_and_tokenizer, predict_qa
-
-
 app = FastAPI()
 
 pred_app = Celery(
@@ -26,12 +23,6 @@ pred_app = Celery(
 class QuestionParams(BaseModel):
     question: str
     context: str
-
-class QuestionResponse(BaseModel):
-    score: float
-    start: int
-    end: int
-    answer: str
 
 class TaskResult(BaseModel):
     id: str
@@ -47,25 +38,12 @@ def root():
     '''
     return {"message": "Service for question-answering task"}
 
-pipeline = None
-
-# @app.on_event("startup")
-# def startup_loading():
-#     '''
-#     Register the pipeline to run during startup
-#     '''
-#     global pipeline
-#     pipeline, _ = load_model_and_tokenizer()
-
 @app.post("/api/predict", status_code=HTTP_201_CREATED)
-def predict_answer(q_params: QuestionParams): #-> QuestionResponse:
+def predict_answer(q_params: QuestionParams): 
     '''
     Make a prediction based on context
     '''
-    # needed for tests
-    # if 'pipeline' not in locals():
-    #     pipeline, _ = load_model_and_tokenizer()
-
+    
     if not q_params.question:
         raise HTTPException(status_code=400, detail="Question text is empty! Please, fill it.")
 
@@ -74,7 +52,6 @@ def predict_answer(q_params: QuestionParams): #-> QuestionResponse:
     
     task = pred_app.send_task(
         name="predict_qa",
-        # name="papp",
         kwargs={"question": q_params.question, "context": q_params.context}
     )
 
@@ -98,16 +75,6 @@ def get_result(task_id: str):
         content=output.dict()
     )
 
-    # tmp = predict_qa(q_params.question, q_params.context, pipeline)
-    # answer = QuestionResponse(
-    #     score=tmp['score'],
-    #     start=tmp['start'],
-    #     end=tmp['end'],
-    #     answer=tmp['answer']
-    # )
-    
-    # return answer
-                
 
 if __name__ == "__main__":
     """
