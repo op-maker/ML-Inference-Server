@@ -1,7 +1,7 @@
 # torch==2.0.0
 # transformers==4.40.1
 # optimum==1.19.1
-# optimum[onnx, onnxruntime]==1.19.1
+optimum[onnx, onnxruntime]==1.19.1
 celery[redis]==5.3.5
-fastapi==0.111.0
-pytest==8.2.0
+# fastapi==0.111.0
+# pytest==8.2.0

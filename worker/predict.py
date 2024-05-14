@@ -2,13 +2,14 @@ import os
 from transformers import AutoTokenizer, pipeline
 from optimum.onnxruntime import ORTModelForQuestionAnswering
 
-# from celery import Celery
+from celery import Celery
 
-# papp = Celery(
-#     "predict",
-#     broker="redis://redis:6379/0",
-#     backend="redis://redis:6379/0"
-# )
+papp = Celery(
+    "predict",
+    # "worker",
+    broker="redis://redis:6379/0",
+    backend="redis://redis:6379/0"
+)
 
 def load_model_and_tokenizer():
     model = ORTModelForQuestionAnswering.from_pretrained("optimum/roberta-base-squad2")
@@ -17,9 +18,17 @@ def load_model_and_tokenizer():
     pipe = pipeline("question-answering", model=model, tokenizer=tokenizer, device=device)
     return pipe, (model, tokenizer)
 
-def predict_qa(question, context, pipeline):
-    pred = pipeline(question, context)
+pipe, _ = load_model_and_tokenizer()
+
+@papp.task(name="predict_qa")
+def predict_qa(question, context):
+    pred = pipe(question, context)
     return pred
+
+
+# def predict_qa(question, context, pipeline):
+#     pred = pipeline(question, context)
+#     return pred
 
 
 # print(predict_qa(

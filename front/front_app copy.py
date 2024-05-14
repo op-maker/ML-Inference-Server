@@ -2,22 +2,11 @@ import gradio as gr
 import requests
 import json
 import os
-from retrying import retry
-from typing import Dict, Any
 
-STATUS_CREATED = 201
-STATUS_PENDING = 202
 
-import time
 
-@retry(stop_max_attempt_number=10, wait_exponential_multiplier=1000, wait_exponential_max=10000)
-def get_result(task_id: str) -> Dict[Any, Any]:
-    start = time.time()
-    response = requests.get(f"http://web/api/task/{task_id}")
-    if response.status_code == STATUS_PENDING: #or response.json()["status"] == "PENDING":
-        raise gr.Error("Task on progress")
 
-    return response.json()
+
 
 def predict_answer(question: str, context: str):
     
@@ -30,16 +19,9 @@ def predict_answer(question: str, context: str):
     if response.status_code == 400:
         raise gr.Error("Please, fill the empty fields")
 
-    task_id = response.json()['id'] if response.status_code == STATUS_CREATED else None
-    
-    data = get_result(task_id)
-
-    if data['status'] != 'SUCCESS':
-        print("err", data)
-        raise gr.Error(f"Not successed task response: {data['error']}")
-
-    out = data["result"]
-    
+    print(response.status_code)
+    out = response.json()
+        
     return out["answer"], out["score"]
 
 
@@ -69,6 +51,9 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
 
 if __name__ == "__main__":
     share_property = os.getenv("IS_SHAREABLE", False)
+    print('*' * 30)
+    print(share_property)
+    print('*' * 30)
     demo.queue(default_concurrency_limit=10).launch(
         share=share_property,
         server_name="0.0.0.0",
