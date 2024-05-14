@@ -2,7 +2,7 @@
 
 It is a project of inference server for Question-Answering task with ONNX Runtime optimized model, FastAPI, Gradio as the frontend part, Celery as the task queue, Redis as the Celery-backend and Traefik as the reverse proxy and load-balancer. All services are packaged in Docker-containers. 
 
-An example of work is located below. 
+An example of work is located below:
 
 
 ![image](https://github.com/op-maker/ML-Inference-Server/assets/80627278/08dd6fa4-41be-4e71-be65-cbf7de0f7b10)
