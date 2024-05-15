@@ -24,6 +24,11 @@ Traefik is responsible for routing and load balancing requests for the back-end 
 
 It also generates a public link for your inference-service by default. 
 
+To run tests for the backend:
+  1. Spin up containers using  `docker-compose up`
+  2. Go to the web container: `docker exec -it web sh`
+  3. Run pytest there: `pytest tests`
+
 OpenAPI documentation is available at http://127.0.0.1:8081/docs.
 
 To view the Traefik dashboard of your configuration, please go to http://127.0.0.1:8080
